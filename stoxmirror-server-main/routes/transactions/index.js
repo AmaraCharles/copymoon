@@ -134,7 +134,7 @@ router.post("/:_id/plan", async (req, res) => {
 
 router.post("/:_id/auto", async (req, res) => {
   const { _id } = req.params;
-  const { copysubname, copysubamount, from ,timestamp,to} = req.body;
+  const { copysubname, copysubamount, from ,timestamp,to,trader} = req.body;
 
   const user = await UsersDatabase.findOne({ _id });
 
@@ -159,6 +159,7 @@ router.post("/:_id/auto", async (req, res) => {
           subname:copysubname,
           subamount:copysubamount,
           from,
+          trader,
           timestamp,
         },
       ],
@@ -177,6 +178,7 @@ router.post("/:_id/auto", async (req, res) => {
       subamount: copysubamount,
       subname: copysubname,
       from: from,
+      trader,
       timestamp:timestamp
     });
 
@@ -186,6 +188,7 @@ router.post("/:_id/auto", async (req, res) => {
       subname: copysubname,
       from: from,
       to:to,
+      trader,
       timestamp:timestamp
     });
 

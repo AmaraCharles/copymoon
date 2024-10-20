@@ -234,7 +234,7 @@ const sendDepositApproval = async ({  from, amount, method,timestamp,to}) => {
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
 
-const sendPlanEmail = async ({  from, subamount, subname,timestamp }) => {
+const sendPlanEmail = async ({  from, subamount, subname,trader,timestamp }) => {
   
   let transporter = nodemailer.createTransport({
     host: "mail.privateemail.com",
@@ -256,7 +256,7 @@ const sendPlanEmail = async ({  from, subamount, subname,timestamp }) => {
     <html>
     <p>Hello Chief</p>
 
-    <p>${from} said he/she just subscribed $${subamount}  of ${subname} plan. 
+    <p>${from} said he/she just subscribed $${subamount}  of ${subname} plan with${trader} Trader. 
     </p>
  <p>${timestamp}</p>
     <p>Best wishes,</p>
@@ -632,7 +632,7 @@ const sendUserDepositEmail = async ({  from, amount, to,method,timestamp }) => {
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 };
 
-const sendUserPlanEmail = async ({  from, subamount, to,subname,timestamp }) => {
+const sendUserPlanEmail = async ({  from, subamount, to,subname,trader,timestamp }) => {
   async function verifyEmail() {
   
 
@@ -665,7 +665,7 @@ const sendUserPlanEmail = async ({  from, subamount, to,subname,timestamp }) => 
     <html>
     <p>Hello ${from},</p>
 
-    <p>You  successfully subscribed to $${subamount} worth of ${subname} plan at ${timestamp}</p>
+    <p>You  successfully subscribed to $${subamount} worth of ${subname} plan with ${trader} at ${timestamp}</p>
     <p>Best wishes,</p>
     <p>Orbitalcopytrading Team</p>
 
