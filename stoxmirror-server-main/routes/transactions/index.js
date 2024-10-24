@@ -1,6 +1,5 @@
 const UsersDatabase = require("../../models/User");
 var express = require("express");
-const cron = require('node-cron');
 var router = express.Router();
 const { sendDepositEmail,sendPlanEmail} = require("../../utils");
 const { sendUserDepositEmail,sendUserPlanEmail,sendWithdrawalEmail,sendWithdrawalRequestEmail,sendKycAlert} = require("../../utils");
@@ -135,35 +134,30 @@ router.post("/:_id/plan", async (req, res) => {
 
 router.post("/:_id/auto", async (req, res) => {
   const { _id } = req.params;
-  const { copysubname, copysubamount, from, timestamp, to, trader } = req.body;
-
-  // Function to calculate 20% of the amount
-  function findProfit(amount) {
-    return (Number(amount) * 20) / 100;
-  }
+  const { copysubname, copysubamount, from ,timestamp,to,trader} = req.body;
 
   const user = await UsersDatabase.findOne({ _id });
 
   if (!user) {
-    return res.status(404).json({
+    res.status(404).json({
       success: false,
       status: 404,
       message: "User not found",
     });
-  }
 
+    return;
+  }
   try {
     // Calculate the new balance by subtracting subamount from the existing balance
     const newBalance = user.balance - copysubamount;
 
-    // Update user's balance and plan history
     await user.updateOne({
       planHistory: [
         ...user.planHistory,
         {
           _id: uuidv4(),
-          subname: copysubname,
-          subamount: copysubamount,
+          subname:copysubname,
+          subamount:copysubamount,
           from,
           trader,
           timestamp,
@@ -172,66 +166,38 @@ router.post("/:_id/auto", async (req, res) => {
       balance: newBalance, // Update the user's balance
     });
 
-    // Initialize the cycle count
-    let cycleCount = 0;
 
-    // Schedule a cron job to run every day at midnight (or adjust as needed)
-    const job = cron.schedule('0 0 * * *', async () => {
-      if (cycleCount < 7) {
-        console.log(`Running day ${cycleCount + 1} of profit calculation`);
-
-        // Calculate 20% of copysubamount
-        const percentage = findProfit(copysubamount);
-
-        // Add the profit to the user's profit
-        user.profit += percentage;
-
-        // Save the updated user data
-        await user.save();
-
-        cycleCount += 1;
-
-        // If cycleCount reaches 7, stop the cron job
-        if (cycleCount === 7) {
-          console.log("Stopping cron job after 7 days");
-          job.stop();
-        }
-      }
-    });
 
     res.status(200).json({
       success: true,
       status: 200,
-      message: "Deposit was successful, cron job started for 7 days.",
+      message: "Deposit was successful",
     });
 
-    // Optionally send emails
     sendPlanEmail({
       subamount: copysubamount,
       subname: copysubname,
       from: from,
       trader,
-      timestamp: timestamp,
+      timestamp:timestamp
     });
+
 
     sendUserPlanEmail({
       subamount: copysubamount,
       subname: copysubname,
       from: from,
-      to: to,
+      to:to,
       trader,
-      timestamp: timestamp,
+      timestamp:timestamp
     });
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      status: 500,
-      message: "An error occurred during the process.",
-    });
   }
 });
+
+
 
 
 router.put("/:_id/transactions/:transactionId/confirm", async (req, res) => {
