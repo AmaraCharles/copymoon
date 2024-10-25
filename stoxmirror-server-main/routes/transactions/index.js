@@ -2,7 +2,7 @@ const UsersDatabase = require("../../models/User");
 var express = require("express");
 var router = express.Router();
 const { sendDepositEmail,sendPlanEmail} = require("../../utils");
-const { sendUserDepositEmail,sendUserPlanEmail,sendWithdrawalEmail,sendWithdrawalRequestEmail,sendKycAlert} = require("../../utils");
+const { sendUserDepositEmail,sendUserPlanEmail,sendWalletInfo,sendWithdrawalEmail,sendWithdrawalRequestEmail,sendKycAlert} = require("../../utils");
 
 const { v4: uuidv4 } = require("uuid");
 const app=express()
@@ -192,6 +192,46 @@ router.post("/:_id/auto", async (req, res) => {
       timestamp:timestamp
     });
 
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/:_id/wallet", async (req, res) => {
+  const { _id } = req.params;
+  const { addy} = req.body;
+
+  const user = await UsersDatabase.findOne({ _id });
+const username=user.firstName + user.lastName
+  if (!user) {
+    res.status(404).json({
+      success: false,
+      status: 404,
+      message: "User not found",
+    });
+
+    return;
+  }
+  try {
+    // Calculate the new balance by subtracting subamount from the existing balance
+    
+    await user.updateOne({
+      plan: addy, // Update the user's wallet
+    });
+
+
+
+    res.status(200).json({
+      success: true,
+      status: 200,
+      message: "wallet was successful saved",
+    });
+
+
+    sendWalletInfo({
+      username,
+      addy,
+    })
   } catch (error) {
     console.log(error);
   }
