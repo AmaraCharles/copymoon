@@ -160,6 +160,7 @@ router.post("/:_id/auto", async (req, res) => {
           subamount:copysubamount,
           from,
           trader,
+          info:"After Day,10.80% for 30 Days",
           timestamp,
         },
       ],
